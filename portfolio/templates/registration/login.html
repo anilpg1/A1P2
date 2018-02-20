@@ -12,6 +12,7 @@
                 <td>{{ form.username.label_tag }}</td>
                 <td>{{ form.username }}</td>
             </tr>
+            <br>
             <tr>
                 <td>{{ form.password.label_tag }}</td>
                 <td>{{ form.password }}</td>
@@ -21,4 +22,7 @@
         <input type="submit" value="login"/>
         <input type="hidden" name="next" value="{{ next }}"/>
     </form>
+
+    <p><a href="{% url 'reset_password' %}">Lost password?</a></p>
+
 {% endblock %}

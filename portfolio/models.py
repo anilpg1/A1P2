@@ -2,6 +2,8 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 
+
+
 class Customer(models.Model):
     name = models.CharField(max_length=50)
     address = models.CharField(max_length=200)
@@ -68,4 +70,43 @@ class Stock(models.Model):
 
     def initial_stock_value(self):
         return self.shares * self.purchase_price
+
+    def current_stock_price(self):
+        symbol_f = str(self.symbol)
+        main_api = 'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol='
+        api_key = '&interval=1min&apikey=2M6NJWQPUCDRGRM5'
+        url = main_api + symbol_f + api_key
+        json_data = requests.get(url).json()
+        mkt_dt = (json_data["Meta Data"]["3. Last Refreshed"])
+        open_price = float(json_data["Time Series (1min)"][mkt_dt]["1. open"])
+        share_value = open_price
+        return share_value
+
+    def current_stock_value(self):
+        symbol_f = str(self.symbol)
+        main_api = 'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol='
+        api_key = '&interval=1min&apikey=2M6NJWQPUCDRGRM5​'
+        url = main_api + symbol_f + api_key
+        json_data = requests.get(url).json()
+        mkt_dt = (json_data["Meta Data"]["3. Last Refreshed"])
+        open_price = float(json_data["Time Series (1min)"][mkt_dt]["1. open"])
+        share_value = open_price
+        return float(share_value) * float(self.shares)
+
+
+class MutualFund(models.Model):
+    customer = models.ForeignKey(Customer, related_name='mutualfunds')
+    scheme_plan = models.CharField(max_length=50)
+    acquired_date = models.DateField(default=timezone.now)
+    investment_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    current_value = models.DecimalField(max_digits=10, decimal_places=2)
+    nominee = models.CharField(max_length=30)
+
+    def created(self):
+        self.acquired_date = timezone.now()
+        self.save()
+
+    def __str__(self):
+        return str(self.customer)
+
 
